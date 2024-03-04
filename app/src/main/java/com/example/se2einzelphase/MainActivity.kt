@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,14 +37,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val outputState = remember { mutableStateOf("") }
+
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        OutputField(outputState.value)
                         Header()
                         NumberTextField()
-                        TwoButtons()
+                        TwoButtons(outputState)
                     }
                 }
             }
@@ -73,22 +77,39 @@ fun NumberTextField() {
 }
 
 @Composable
-fun StyledButton(text: String, onClick: () -> Unit) {
-    Button(onClick = onClick, modifier = Modifier.padding(8.dp)) {
+fun OutputField(text: String) {
+    Box(
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Text(text)
+    }
+}
+
+fun processLocal(number: String): String {
+    return "Processed: $number"
+}
+
+fun processServer(number: String): String {
+    return "Dingdong! Server says: $number"
+}
+
+@Composable
+fun StyledButton(text: String, onClick: () -> String, outputState: MutableState<String>) {
+    Button(onClick = { outputState.value = onClick() }, modifier = Modifier.padding(8.dp)) {
         Text(text)
     }
 }
 
 @Composable
-fun TwoButtons() {
+fun TwoButtons(outputState: MutableState<String>) {
     MaterialTheme {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
-                StyledButton("Send Number") { /*TODO: Handle click*/ }
-                StyledButton("Process Number") { /*TODO: Handle click*/ }
+                StyledButton("Send Number", { processLocal("1234") }, outputState)
+                StyledButton("Process Number", { processServer("5678") }, outputState)
             }
         }
     }

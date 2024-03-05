@@ -17,12 +17,15 @@ import androidx.compose.ui.Modifier
 import com.example.se2einzelphase.ui.theme.SE2EinzelphaseTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 
@@ -102,12 +105,19 @@ fun processServer(number: String): String {
 
 @Composable
 fun StyledButton(text: String, onClick: () -> String, outputState: MutableState<String>) {
+    val buttonShape = RoundedCornerShape(12.dp) // the higher the rounder
+
     Button(
         onClick = { outputState.value = onClick() },
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .size(160.dp, 48.dp),
+        shape = buttonShape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = androidx.compose.ui.graphics.Color.Yellow,
-            contentColor = androidx.compose.ui.graphics.Color.Blue)) {
+            containerColor = Color.Yellow,
+            contentColor = Color.Blue
+        )
+    ) {
         Text(text)
     }
 }

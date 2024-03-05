@@ -100,11 +100,14 @@ fun OutputField(text: String) {
 
 // Aufgabe 12210093 % 7 = 0
 // 0 - Ziffern der Größe nach sortieren, Primzahlen werden gestrichen
-// input is String because the Input provides a String, converting that back and forward would be unnecessary
+// input is String because the InputField provides a String, converting that back and forward would be unnecessary
 fun processLocal(numberStr: String): String {
+    if (numberStr.length <= 7) {
+        return "This is not a valid Matrikelnummer"
+    }
+    // making a isPrime() for digits from 1-9 would be unnecessary, as we can just use a set
     val primeDigits = setOf('2', '3', '5', '7')
 
-    // Filter out prime digits and sort the rest in descending order
     val result = numberStr.filterNot { it in primeDigits }
         .map { it.toString().toInt() }
         .sortedDescending()
@@ -114,7 +117,9 @@ fun processLocal(numberStr: String): String {
 }
 
 fun processRemote(numberStr: String): String {
-
+    if (numberStr.length <= 7) {
+        return "This is not a valid Matrikelnummer"
+    }
     return "Remote Processed: $numberStr"
 }
 
@@ -147,11 +152,9 @@ fun TwoButtons(textState: MutableState<String>, outputState: MutableState<String
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
                 StyledButton("Process Remote", {
-                    // Directly use the String from textState
                     processRemote(textState.value)
                 }, outputState)
                 StyledButton("Process Local", {
-                    // Directly use the String from textState
                     processLocal(textState.value)
                 }, outputState)
             }
@@ -164,8 +167,5 @@ fun TwoButtons(textState: MutableState<String>, outputState: MutableState<String
 fun Header() {
     Text(
         text = "Enter your Matrikelnummer",
-    )
-    Text(
-        text = "Must be no more than 8 digits",
     )
 }

@@ -3,6 +3,7 @@ package com.example.se2einzelphase
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,10 +49,10 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        OutputField(outputState.value)
                         Header()
                         NumberTextField()
                         TwoButtons(outputState)
+                        OutputField(outputState.value)
                     }
                 }
             }
@@ -82,10 +83,19 @@ fun NumberTextField() {
 
 @Composable
 fun OutputField(text: String) {
-    Box(
-        modifier = Modifier.padding(8.dp)
+    Surface(
+        modifier = Modifier
+            .padding(8.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, Color.Black, RoundedCornerShape(8.dp)),
+        color = Color.LightGray,
+        shadowElevation = 4.dp
     ) {
-        Text(text)
+        Text(
+            text = text,
+            modifier = Modifier.padding(16.dp),
+            color = Color.Black
+        )
     }
 }
 

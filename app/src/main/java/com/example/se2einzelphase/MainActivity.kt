@@ -36,13 +36,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SE2EinzelphaseTheme{
-                // A surface container using the 'background' color from the theme
+            SE2EinzelphaseTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = Color.Green
                 ) {
                     val outputState = remember { mutableStateOf("") }
+                    val textState = remember { mutableStateOf("") } // This holds the input field's state
 
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -50,8 +50,8 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Header()
-                        NumberTextField()
-                        TwoButtons(outputState)
+                        NumberTextField(textState) // Pass textState here
+                        TwoButtons(textState, outputState) // And here
                         OutputField(outputState.value)
                     }
                 }
@@ -61,9 +61,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NumberTextField() {
-    val textState = remember { mutableStateOf("") }
-
+fun NumberTextField(textState: MutableState<String>) { // Accept textState
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -80,6 +78,7 @@ fun NumberTextField() {
         )
     }
 }
+
 
 @Composable
 fun OutputField(text: String) {
@@ -101,17 +100,24 @@ fun OutputField(text: String) {
 
 // Aufgabe 12210093 % 7 = 0
 // 0 - Ziffern der Größe nach sortieren, Primzahlen werden gestrichen
-fun processLocal(number: String): String {
-    // array with primes because a method to calculate would be overkill
+// input is String because the Input provides a String, converting that back and forward would be unnecessary
+fun processLocal(numberStr: String): String {
+    val primeDigits = setOf('2', '3', '5', '7')
 
-    // max heap to sort it descending
+    // Filter out prime digits and sort the rest in descending order
+    val result = numberStr.filterNot { it in primeDigits }
+        .map { it.toString().toInt() }
+        .sortedDescending()
+        .joinToString(separator = "")
 
-    return "Locally Processed: $number"
+    return "Locally Processed: $result"
 }
 
-fun processServer(number: String): String {
-    return "Dingdong! Server says: $number"
+fun processRemote(numberStr: String): String {
+
+    return "Remote Processed: $numberStr"
 }
+
 
 @Composable
 fun StyledButton(text: String, onClick: () -> String, outputState: MutableState<String>) {
@@ -133,19 +139,26 @@ fun StyledButton(text: String, onClick: () -> String, outputState: MutableState<
 }
 
 @Composable
-fun TwoButtons(outputState: MutableState<String>) {
+fun TwoButtons(textState: MutableState<String>, outputState: MutableState<String>) {
     MaterialTheme {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
-                StyledButton("Process Remote", { processServer("1234") }, outputState)
-                StyledButton("Process Local", { processLocal("5678") }, outputState)
+                StyledButton("Process Remote", {
+                    // Directly use the String from textState
+                    processRemote(textState.value)
+                }, outputState)
+                StyledButton("Process Local", {
+                    // Directly use the String from textState
+                    processLocal(textState.value)
+                }, outputState)
             }
         }
     }
 }
+
 
 @Composable
 fun Header() {

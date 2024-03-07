@@ -126,7 +126,7 @@ fun processLocal(numberStr: String): String {
         .sortedDescending()
         .joinToString(separator = "")
 
-    return "Locally Processed: $result"
+    return "Removed Primes and Sorted Descending: $result"
 }
 
 // lot of debugging to get it fixed, forgot to add the newline to the matrikelnummer

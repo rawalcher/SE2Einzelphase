@@ -30,6 +30,9 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.Socket
 import android.util.Log
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.*
+import java.util.Arrays
 
 interface ServerResponseCallback {
     fun onResponse(response: String)
@@ -121,9 +124,39 @@ fun processLocal(numberStr: String): String {
     return "Locally Processed: $result"
 }
 
-fun processRemote(matrikelnummer: String): String{
-    return "Process Remote $matrikelnummer"
+// lot of debugging to get it fixed, forgot to add the newline to the matrikelnummer
+suspend fun processRemote(matrikelnummer: String): String = withContext(Dispatchers.IO) {
+    try {
+        Log.d("ServerConnection", "Attempting to connect to server")
+        Socket("se2-submission.aau.at", 20080).use { socket ->
+            Log.d("ServerConnection", "Connection to server succeeded")
+
+            val outputStream = socket.getOutputStream()
+            val inputStream = socket.getInputStream()
+
+            Log.d("ServerRequest", "Sending matrikelnummer: $matrikelnummer")
+            val matrikelnummerWithNewline = "$matrikelnummer\n"
+            outputStream.write(matrikelnummerWithNewline.toByteArray(Charsets.UTF_8))
+            outputStream.flush()
+            Log.d("ServerRequest", "Matrikelnummer sent")
+
+            Log.d("ServerResponse", "Reading server response")
+            val responseBytes = inputStream.readBytes()
+            if (responseBytes.isEmpty()) {
+                Log.d("ServerResponse", "Server response was empty")
+            }
+            Log.d("ServerResponse", "Read ${responseBytes.size} bytes from server")
+            val response = String(responseBytes, Charsets.UTF_8)
+            Log.d("ServerResponse", "Received response: $response")
+
+            response
+        }
+    } catch (e: Exception) {
+        Log.e("ServerConnectionError", "Error connecting to server: ${e.message}", e)
+        "Error connecting to server: ${e.message}"
+    }
 }
+
 
 
 @Composable
@@ -146,7 +179,7 @@ fun StyledButton(text: String, onClick: () -> Unit, outputState: MutableState<St
 
 @Composable
 fun TwoButtons(textState: MutableState<String>, outputState: MutableState<String>) {
-    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope() // Create a CoroutineScope
 
     MaterialTheme {
         Column(
@@ -155,15 +188,19 @@ fun TwoButtons(textState: MutableState<String>, outputState: MutableState<String
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
                 StyledButton("Process Remote", {
-                    outputState.value = processRemote(textState.value)
+                    coroutineScope.launch { // Launch a coroutine
+                        val response = processRemote(textState.value)
+                        outputState.value = response // Update the outputState with the response
+                    }
                 }, outputState)
                 StyledButton("Process Local", {
-                    outputState.value = processLocal(textState.value)
+                    outputState.value = processLocal(textState.value) // Local processing remains synchronous
                 }, outputState)
             }
         }
     }
 }
+
 
 
 

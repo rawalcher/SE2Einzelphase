@@ -26,13 +26,8 @@ import androidx.compose.ui.unit.dp
 import com.example.se2einzelphase.ui.theme.SE2EinzelphaseTheme
 import java.net.Socket
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.*
-
-interface ServerResponseCallback {
-    fun onResponse(response: String)
-}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

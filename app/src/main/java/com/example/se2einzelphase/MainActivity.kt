@@ -1,6 +1,5 @@
 package com.example.se2einzelphase
 
-import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,17 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.se2einzelphase.ui.theme.SE2EinzelphaseTheme
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import java.net.Socket
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.*
-import java.util.Arrays
 
 interface ServerResponseCallback {
     fun onResponse(response: String)
@@ -58,15 +54,16 @@ class MainActivity : ComponentActivity() {
                         Header()
                         NumberTextField(textState)
                         TwoButtons(textState, outputState)
-                        if (outputState.value.isNotEmpty()){
-                        OutputField(outputState.value)
-                        }
+                        OutputField(outputState.value, outputState.value.isNotEmpty())
+
                     }
                 }
             }
         }
     }
 }
+
+
 
 @Composable
 fun NumberTextField(textState: MutableState<String>) {
@@ -89,14 +86,19 @@ fun NumberTextField(textState: MutableState<String>) {
 
 
 @Composable
-fun OutputField(text: String) {
-    Surface(
+fun OutputField(text: String, isVisible: Boolean) {
+    if (isVisible) {
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
+            .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
-            .border(2.dp, Color.Black, RoundedCornerShape(8.dp)),
-        color = Color.LightGray,
-        shadowElevation = 4.dp
+            .border(
+                width = 2.dp,
+                color = Color.Black,
+                shape = RoundedCornerShape(8.dp)
+            )
     ) {
         Text(
             text = text,
@@ -104,7 +106,10 @@ fun OutputField(text: String) {
             color = Color.Black
         )
     }
+    }
 }
+
+
 
 // Aufgabe 12210093 % 7 = 0
 // 0 - Ziffern der Größe nach sortieren, Primzahlen werden gestrichen
@@ -160,7 +165,7 @@ suspend fun processRemote(matrikelnummer: String): String = withContext(Dispatch
 
 
 @Composable
-fun StyledButton(text: String, onClick: () -> Unit, outputState: MutableState<String>) {
+fun StyledButton(text: String, onClick: () -> Unit) {
     Button(
         onClick = onClick, // onClick now just triggers actions and doesn't need to return a String
         modifier = Modifier
@@ -179,7 +184,7 @@ fun StyledButton(text: String, onClick: () -> Unit, outputState: MutableState<St
 
 @Composable
 fun TwoButtons(textState: MutableState<String>, outputState: MutableState<String>) {
-    val coroutineScope = rememberCoroutineScope() // Create a CoroutineScope
+    val coroutineScope = rememberCoroutineScope()
 
     MaterialTheme {
         Column(
@@ -187,22 +192,19 @@ fun TwoButtons(textState: MutableState<String>, outputState: MutableState<String
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
-                StyledButton("Process Remote", {
-                    coroutineScope.launch { // Launch a coroutine
+                StyledButton("Process Remote") {
+                    coroutineScope.launch {
                         val response = processRemote(textState.value)
-                        outputState.value = response // Update the outputState with the response
+                        outputState.value = response
                     }
-                }, outputState)
-                StyledButton("Process Local", {
-                    outputState.value = processLocal(textState.value) // Local processing remains synchronous
-                }, outputState)
+                }
+                StyledButton("Process Local") {
+                    outputState.value = processLocal(textState.value)
+                }
             }
         }
     }
 }
-
-
-
 
 @Composable
 fun Header() {

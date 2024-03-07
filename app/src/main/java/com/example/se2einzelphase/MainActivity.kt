@@ -31,7 +31,6 @@ import java.io.DataOutputStream
 import java.net.Socket
 import android.util.Log
 
-
 interface ServerResponseCallback {
     fun onResponse(response: String)
 }
@@ -43,7 +42,7 @@ class MainActivity : ComponentActivity() {
             SE2EinzelphaseTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color.Green
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     val outputState = remember { mutableStateOf("") }
                     val textState = remember { mutableStateOf("") }
@@ -56,7 +55,9 @@ class MainActivity : ComponentActivity() {
                         Header()
                         NumberTextField(textState)
                         TwoButtons(textState, outputState)
+                        if (outputState.value.isNotEmpty()){
                         OutputField(outputState.value)
+                        }
                     }
                 }
             }
@@ -120,38 +121,8 @@ fun processLocal(numberStr: String): String {
     return "Locally Processed: $result"
 }
 
-fun processRemote(matrikelnummer: String, callback: ServerResponseCallback) {
-    Thread {
-        if (matrikelnummer.length != 8) {
-            callback.onResponse("This is not a valid Matrikelnummer")
-            return@Thread
-        }
-
-        try {
-            Socket("se2-submission.aau.at", 20080).use { socket ->
-                DataOutputStream(socket.getOutputStream()).use { dos ->
-                    DataInputStream(socket.getInputStream()).use { dis ->
-
-                        dos.write(matrikelnummer.toByteArray())
-                        dos.flush()
-                        Log.d("NetworkCall", "Sending Matrikelnummer: $matrikelnummer")
-
-                        // Read the response from the server
-                        val responseBytes = ByteArray(1024)
-                        val bytesRead = dis.read(responseBytes)
-
-                        // Convert the response bytes to a String
-                        val response = String(responseBytes, 0, bytesRead)
-                        Log.d("Answer", response)
-                        callback.onResponse(response)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            callback.onResponse("Failed to communicate with the server: ${e.message}")
-        }
-    }.start()
+fun processRemote(matrikelnummer: String): String{
+    return "Process Remote $matrikelnummer"
 }
 
 
@@ -164,8 +135,8 @@ fun StyledButton(text: String, onClick: () -> Unit, outputState: MutableState<St
             .size(160.dp, 48.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Yellow,
-            contentColor = Color.Blue
+            containerColor = MaterialTheme.colorScheme.primary,
+            // contentColor = Color.Blue
         )
     ) {
         Text(text)
@@ -184,13 +155,7 @@ fun TwoButtons(textState: MutableState<String>, outputState: MutableState<String
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
                 StyledButton("Process Remote", {
-                    processRemote(textState.value, object : ServerResponseCallback {
-                        override fun onResponse(response: String) {
-                            (context as Activity).runOnUiThread {
-                                outputState.value = response
-                            }
-                        }
-                    })
+                    outputState.value = processRemote(textState.value)
                 }, outputState)
                 StyledButton("Process Local", {
                     outputState.value = processLocal(textState.value)

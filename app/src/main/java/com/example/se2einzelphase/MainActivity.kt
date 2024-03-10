@@ -58,8 +58,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
 @Composable
 fun NumberTextField(textState: MutableState<String>) {
     Row(
@@ -79,41 +77,38 @@ fun NumberTextField(textState: MutableState<String>) {
     }
 }
 
-
 @Composable
 fun OutputField(text: String, isVisible: Boolean) {
     if (isVisible) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .border(
-                width = 2.dp,
-                color = Color.Black,
-                shape = RoundedCornerShape(8.dp)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .border(
+                    width = 2.dp,
+                    color = Color.Black,
+                    shape = RoundedCornerShape(8.dp)
+                )
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier.padding(16.dp),
+                color = Color.Black
             )
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(16.dp),
-            color = Color.Black
-        )
-    }
+        }
     }
 }
 
-
-
 // Aufgabe 12210093 % 7 = 0
 // 0 - Ziffern der Größe nach sortieren, Primzahlen werden gestrichen
-// input is String because the InputField provides a String, converting that back and forward would be unnecessary
+// input is String because the InputField provides a String, converting that back and forward would be dumb
 fun processLocal(numberStr: String): String {
     if (numberStr.length <= 7) {
         return "This is not a valid Matrikelnummer"
     }
-    // making a isPrime() for digits from 1-9 would be unnecessary, as we can just use a set
+    // making a isPrime() for digits from 1-9 is unnecessary, as we can just use a set
     val primeDigits = setOf('2', '3', '5', '7')
 
     val result = numberStr.filterNot { it in primeDigits }
@@ -124,7 +119,7 @@ fun processLocal(numberStr: String): String {
     return "Removed Primes and Sorted Descending: $result"
 }
 
-// lot of debugging to get it fixed, forgot to add the newline to the matrikelnummer
+// lots of debugging to get it fixed, forgot to add the newline to the matrikelnummer
 suspend fun processRemote(matrikelnummer: String): String = withContext(Dispatchers.IO) {
     try {
         Log.d("ServerConnection", "Attempting to connect to server")
@@ -156,8 +151,6 @@ suspend fun processRemote(matrikelnummer: String): String = withContext(Dispatch
         "Error connecting to server: ${e.message}"
     }
 }
-
-
 
 @Composable
 fun StyledButton(text: String, onClick: () -> Unit) {

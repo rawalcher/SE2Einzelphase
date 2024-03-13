@@ -121,6 +121,7 @@ fun processLocal(numberStr: String): String {
 
 // lots of debugging to get it fixed, forgot to add the newline to the matrikelnummer
 suspend fun processRemote(matrikelnummer: String): String = withContext(Dispatchers.IO) {
+    // withContext(Dispatherces.IO) just means that this code will be run in a coroutine meant for background tasks
     try {
         Log.d("ServerConnection", "Attempting to connect to server")
         Socket("se2-submission.aau.at", 20080).use { socket ->
